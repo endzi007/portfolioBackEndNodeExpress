@@ -1,14 +1,31 @@
+const User = require("../models/user.js");
 function signup (req, res, next) {
-    // see if user exsists
-    console.log(req.body);
+    const password = req.body.password;
+    var email = req.body.email;
+    if(password.length < 6 || email.length < 6){
+        return res.status(422).send("password too short");
+    }
 
-    // if email is in use, return error
+    User.findOne({ email: email }, function(err, foundUser){
+        if(err){
+            return next(err);
+        }
+        if(foundUser){
+            return res.status(422).send("user alredy in session");
+        }
 
+        var newUser = new User({
+            email: email,
+            password: password
+        });
 
-    // if a user with email doesn't egzist, create and save
-
-
-    // send info that user is created
+        newUser.save(function(err){
+            if(err){
+                return next(err);
+            }
+            res.send(newUser);
+        });
+    });
 }
 
 module.exports = signup; 
